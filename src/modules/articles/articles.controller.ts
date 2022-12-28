@@ -23,7 +23,7 @@ export class ArticlesController {
     return await this.articlesService.get1(id);
   }
 
-  @Get('aKienbeo')
+  @Get('asdasd')
   async hello() {
     return 'asdalushdakjh kajhds';
   }

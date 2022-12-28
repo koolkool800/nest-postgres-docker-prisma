@@ -5,6 +5,7 @@ services:
     image: giabao_image
     build:
       context: .
+      target: builder
     volumes:
       - ./:/usr/src/app
     command: yarn start:dev
