@@ -22,4 +22,9 @@ export class ArticlesController {
   async get1(@Param('id') id: string) {
     return await this.articlesService.get1(id);
   }
+
+  @Get('aKienbeo')
+  async hello() {
+    return 'asdalushdakjh kajhds';
+  }
 }
