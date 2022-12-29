@@ -1,29 +1,29 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaModule } from './prisma/prisma.module';
-import { ArticlesModule } from './modules/articles/articles.module';
 import { ConfigModule } from '@nestjs/config';
-import { MailModule } from './mail/mail.module';
-import { MailerModule } from '@nestjs-modules/mailer';
+import { MailModule } from './modules/mail/mail.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserModule } from './modules/user/user.module';
+import { PostModule } from './modules/post/post.module';
 
 @Module({
   imports: [
-    PrismaModule,
-    ArticlesModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MailModule,
-    MailerModule.forRoot({
-      transport: {
-        host: 'smtp.sendgrid.net',
-        auth: {
-          user: 'apikey',
-          pass: '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',
-        },
-      },
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'postgres',
+      port: 5432,
+      username: 'root',
+      password: 'password',
+      database: 'postgresql',
+      synchronize: true,
     }),
+    MailModule,
+    UserModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [AppService],
