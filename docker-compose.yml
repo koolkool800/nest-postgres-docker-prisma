@@ -1,5 +1,24 @@
 version: '3.8'
 services:
+  app:
+    container_name: giabao_app
+    image: giabao_image
+    build:
+      context: .
+      target: builder
+    volumes:
+      - ./:/usr/src/app
+    command: yarn start:dev
+
+    restart: always
+    networks:
+      - network
+    ports:
+      - 8000:3000
+    depends_on:
+      - postgres
+    env_file:
+      - ./.env
   postgres:
     container_name: giabao_postgres
     image: postgres:13.2
@@ -12,6 +31,11 @@ services:
       - data:/var/lib/postgresql/data
     ports:
       - 5555:5432
+    networks:
+      - network
 
 volumes:
   data:
+
+networks:
+  network:
