@@ -8,6 +8,9 @@ import { UserModule } from './modules/user/user.module';
 import { PostModule } from './modules/post/post.module';
 import { LoggingInterceptor } from './utils/interceptors/logging.interceptor';
 import { ErrorsInterceptor } from './utils/interceptors/error.interceptor';
+import { GoogleAuthenticationModule } from './modules/google-authentication/google-authentication.module';
+import { AuthenModule } from './modules/authen/authen.module';
+import { User } from './modules/user/entity/user.entity';
 
 @Module({
   imports: [
@@ -25,11 +28,14 @@ import { ErrorsInterceptor } from './utils/interceptors/error.interceptor';
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_NAME'),
         synchronize: true,
+        entities: [User],
       }),
     }),
     MailModule,
     UserModule,
     PostModule,
+    GoogleAuthenticationModule,
+    AuthenModule,
   ],
   controllers: [AppController],
   providers: [

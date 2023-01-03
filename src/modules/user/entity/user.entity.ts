@@ -1,16 +1,26 @@
-import { Column, Entity } from 'typeorm';
+import { Exclude } from 'class-transformer';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
+
   @Column()
   name: string;
 
-  @Column()
-  username: string;
+  @Column({ unique: true })
+  email: string;
 
-  @Column()
-  //   @Exclude()
-  password: string;
+  @Column({ nullable: true })
+  @Exclude()
+  password?: string;
+
+  @Column({ default: false })
+  isRegisteredWithGoogle: boolean;
+
+  @Column({ nullable: true })
+  stripeCustomerId?: string;
 
   //   @JoinColumn()
   //   @OneToOne(() => Address)
