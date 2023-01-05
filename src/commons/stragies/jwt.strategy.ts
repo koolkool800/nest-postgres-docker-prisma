@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
@@ -22,6 +22,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
   async validate(payload: TokenPayload) {
+    const logger = new Logger(JwtStrategy.name);
+    logger.debug('payload in validate : ' + payload.userId);
     return this.userService.getUserById(payload.userId);
   }
 }

@@ -48,27 +48,15 @@ export class AuthenService {
     )}`;
   }
 
-  async getAuthenticatedUser(email: string, hashedPass: string) {
+  async getAuthenticatedUser(email: string, password: string) {
     try {
       const user = await this.userService.getUserByEmail(email);
-      await this.verifyPassword(user.password, hashedPass);
-      user.password = undefined;
+      await this.verifyPassword(password, user.password);
+      // user.password = undefined;
 
       return user;
     } catch (error) {
-      throw new HttpException(`${error}`, HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  async getAuthenticatedUser2(email: string, hashedPass: string) {
-    try {
-      const user = await this.userService.getUserByEmail(email);
-      await this.verifyPassword(user.password, hashedPass);
-      user.password = undefined;
-
-      return user;
-    } catch (error) {
-      throw new HttpException(`Du ma ${error}`, HttpStatus.BAD_REQUEST);
+      throw new HttpException(`Duma ${error}`, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -82,5 +70,9 @@ export class AuthenService {
 
   async getAllUser() {
     return await this.userService.getAllUser();
+  }
+
+  async deleteAllUser() {
+    return await this.userService.deleteAll();
   }
 }

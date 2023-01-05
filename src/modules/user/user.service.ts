@@ -86,4 +86,8 @@ export class UserService {
 
     return s;
   }
+
+  async deleteAll() {
+    return await this.userRepository.delete({});
+  }
 }
