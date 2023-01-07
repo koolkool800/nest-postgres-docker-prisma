@@ -18,16 +18,9 @@ export class LocalAuthenGuard extends AuthGuard('local') {
     context: ExecutionContext,
     status?: any,
   ): TUser {
-    const logger = new Logger(LocalAuthenGuard.name);
-    const request = context.switchToHttp().getRequest();
-
-    logger.debug('step 1 local authe guard');
-
     if (err || !user) {
       new UnauthorizedException();
     }
-    logger.debug('step 2 return user local authen guard');
-    logger.debug({ user });
     return user;
   }
 }

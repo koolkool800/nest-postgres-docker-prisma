@@ -48,15 +48,19 @@ export class AuthenService {
     )}`;
   }
 
+  public getCookieForLogOut() {
+    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
+  }
+
   async getAuthenticatedUser(email: string, password: string) {
     try {
       const user = await this.userService.getUserByEmail(email);
-      await this.verifyPassword(password, user.password);
-      // user.password = undefined;
 
+      await this.verifyPassword(password, user.password);
+      user.password = undefined;
       return user;
     } catch (error) {
-      throw new HttpException(`Duma ${error}`, HttpStatus.BAD_REQUEST);
+      throw new HttpException(` ${error}`, HttpStatus.BAD_REQUEST);
     }
   }
 

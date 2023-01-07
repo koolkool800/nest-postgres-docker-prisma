@@ -10,10 +10,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     super({ usernameField: 'email' });
   }
   async validate(email: string, password: string) {
-    const logger = new Logger(LocalStrategy.name);
-    logger.debug('email : ' + email + ', password : ' + password);
     const s = await this.authenService.getAuthenticatedUser(email, password);
-    logger.debug('s : ' + s.email);
     return s;
   }
 }

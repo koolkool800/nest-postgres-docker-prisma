@@ -22,8 +22,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
   async validate(payload: TokenPayload) {
-    const logger = new Logger(JwtStrategy.name);
-    logger.debug('payload in validate : ' + payload.userId);
-    return this.userService.getUserById(payload.userId);
+    return await this.userService.getUserById(payload.userId);
   }
 }

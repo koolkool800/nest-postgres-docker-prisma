@@ -12,12 +12,15 @@ export abstract class BaseEntity {
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
-  @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn({ default: `now()`, nullable: true })
   createdAt: Date;
 
-  @Column({ type: 'varchar', length: 300 })
+  @Column()
   createdBy: string;
 
-  @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  @UpdateDateColumn({
+    default: `now()`,
+    nullable: true,
+  })
   updateAt: Date;
 }
