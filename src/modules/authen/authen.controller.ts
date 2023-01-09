@@ -13,15 +13,20 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { RequestWithUser } from 'commons/types';
+import { JwtRefreshAuthenGuard } from 'src/commons/guards/jwt-refresh.authen.guard';
 import { JwtAuthenGuard } from 'src/commons/guards/jwt.authen.guard';
 import { LocalAuthenGuard } from 'src/commons/guards/local.authen.guard';
+import { UserService } from '../user/user.service';
 import { AuthenService } from './authen.service';
 import { LoginDto, RegisterUserDto } from './dto/authen.dto';
 
 @Controller('authen')
 @UseInterceptors(ClassSerializerInterceptor)
 export class AuthenController {
-  constructor(private readonly authenService: AuthenService) {}
+  constructor(
+    private readonly authenService: AuthenService,
+    private userService: UserService,
+  ) {}
   logger = new Logger(AuthenController.name);
 
   //avoid :  goi Res() res : Response la se error
@@ -31,10 +36,13 @@ export class AuthenController {
   @Post('login')
   async login(@Req() req: RequestWithUser) {
     const user = req.user;
-    const cookie = this.authenService.getCookieWithJWTToken(user.id);
-    // response.setHeader('Set-Cookie', cookie);
-    // response send ok
-    return cookie;
+    const { accessToken, refreshToken } = this.authenService.getAllToken(
+      user.id,
+    );
+
+    await this.userService.setRefreshToken(user.id, refreshToken);
+
+    return { accessToken, refreshToken };
   }
 
   @Post('register')
@@ -51,5 +59,11 @@ export class AuthenController {
   @Get('delete')
   async deleteAll() {
     return await this.authenService.deleteAllUser();
+  }
+
+  @UseGuards(JwtRefreshAuthenGuard)
+  @Get('userWithJWTRefreshToken')
+  async getCurrentUser(@Req() request) {
+    return request?.user;
   }
 }

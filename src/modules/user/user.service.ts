@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { RegisterUserDto } from '../authen/dto/authen.dto';
 import { CreateUserDto } from './dto/user.dto';
 import { User } from './entity/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -82,12 +83,37 @@ export class UserService {
   }
 
   async getAllUser() {
-    const s = await this.userRepository.find();
-
-    return s;
+    return await this.userRepository.find();
   }
 
   async deleteAll() {
     return await this.userRepository.delete({});
+  }
+
+  async setRefreshToken(userId: string, refreshToken: string) {
+    try {
+      const user = await this.getUserById(userId);
+
+      const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+      user.refreshToken = hashedRefreshToken;
+
+      await this.userRepository.update(userId, {
+        refreshToken: hashedRefreshToken,
+      });
+    } catch (error) {
+      throw new BadRequestException(`${error}`);
+    }
+  }
+
+  async getUserFromRefreshToken(refreshToken: string, userId: string) {
+    const user = await this.getUserById(userId);
+    if (!user) {
+      throw new BadRequestException(`User not found`);
+    }
+    const isMatch = await bcrypt.compare(refreshToken, user.refreshToken);
+    if (!isMatch) {
+      throw new BadRequestException(`Refresh token is not match`);
+    }
+    return user;
   }
 }

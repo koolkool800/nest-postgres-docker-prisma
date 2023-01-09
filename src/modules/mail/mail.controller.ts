@@ -14,6 +14,7 @@ export class MailController {
       html: '<h1>html official 2</h1>',
       subject: 'subject official 2',
     };
+
     return await this.mailService.sendEmail(mail);
   }
 }
