@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { RegisterUserDto } from '../authen/dto/authen.dto';
 import { CreateUserDto } from './dto/user.dto';
 import { User } from './entity/user.entity';
@@ -19,7 +19,7 @@ export class UserService {
   ) {}
 
   async createWithGoogle(email: string, name: string) {
-    // register w stripe
+    // register w stripe const stripeCustomer = await this.stripeService.createCustomer(name, email);
 
     const newUser = await this.userRepository.create({
       email,
@@ -33,34 +33,14 @@ export class UserService {
     return newUser;
   }
 
-  async getUserByEmail(email: string) {
+  async getUserByOption(options: FindOneOptions<User>) {
     try {
-      const user = await this.userRepository.findOne({
-        where: {
-          email: email,
-        },
-      });
+      const user = await this.userRepository.findOne(options);
 
       return user;
     } catch (error) {
       throw new BadRequestException(
-        `Error happened in get user by email because no user exist`,
-      );
-    }
-  }
-
-  async getUserById(id: string) {
-    try {
-      const user = await this.userRepository.findOne({
-        where: {
-          id,
-        },
-      });
-
-      return user;
-    } catch (error) {
-      throw new BadRequestException(
-        `Error happened in get user by id because no user exist`,
+        `Error happened in get user by option because no user exist`,
       );
     }
   }
@@ -92,10 +72,7 @@ export class UserService {
 
   async setRefreshToken(userId: string, refreshToken: string) {
     try {
-      const user = await this.getUserById(userId);
-
       const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
-      user.refreshToken = hashedRefreshToken;
 
       await this.userRepository.update(userId, {
         refreshToken: hashedRefreshToken,
@@ -106,7 +83,11 @@ export class UserService {
   }
 
   async getUserFromRefreshToken(refreshToken: string, userId: string) {
-    const user = await this.getUserById(userId);
+    const user = await this.getUserByOption({
+      where: {
+        id: userId,
+      },
+    });
     if (!user) {
       throw new BadRequestException(`User not found`);
     }
@@ -115,5 +96,11 @@ export class UserService {
       throw new BadRequestException(`Refresh token is not match`);
     }
     return user;
+  }
+
+  async removeRefreshToken(userId: string) {
+    return await this.userRepository.update(userId, {
+      refreshToken: null,
+    });
   }
 }

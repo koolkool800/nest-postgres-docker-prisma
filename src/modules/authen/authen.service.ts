@@ -58,13 +58,28 @@ export class AuthenService {
     return { accessToken, refreshToken };
   }
 
+  getAccessToken(userId: string) {
+    try {
+      const payload: TokenPayload = { userId };
+      const accessToken = this.jwtService.sign(payload, {
+        secret: this.configService.get('JWT_SECRET'),
+        expiresIn: this.configService.get('JWT_EXPIRATION_TIME'),
+      });
+      return accessToken;
+    } catch (error) {}
+  }
+
   public getCookieForLogOut() {
     return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
   }
 
   async getAuthenticatedUser(email: string, password: string) {
     try {
-      const user = await this.userService.getUserByEmail(email);
+      const user = await this.userService.getUserByOption({
+        where: {
+          email,
+        },
+      });
 
       await this.verifyPassword(password, user.password);
       user.password = undefined;
@@ -88,5 +103,9 @@ export class AuthenService {
 
   async deleteAllUser() {
     return await this.userService.deleteAll();
+  }
+
+  async removeRefreshToken(userId: string) {
+    return await this.userService.removeRefreshToken(userId);
   }
 }

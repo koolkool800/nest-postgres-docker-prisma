@@ -18,11 +18,16 @@ export class GoogleAuthenticationController {
   ) {}
 
   @Post()
-  async authenticate(
-    @Body() tokenData: TokenVerificationDto,
-    @Req() request: Request,
-  ) {
+  async authenticate(@Body() tokenData: TokenVerificationDto) {
     const { token } = tokenData;
-    const {} = await this.googleAuthenticationService.authenticate(token);
+
+    const { accessToken, refreshToken, user } =
+      await this.googleAuthenticationService.authenticate(token);
+
+    return {
+      accessToken,
+      refreshToken,
+      user,
+    };
   }
 }

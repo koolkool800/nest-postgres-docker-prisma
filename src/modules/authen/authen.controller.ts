@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Logger,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -28,8 +29,6 @@ export class AuthenController {
     private userService: UserService,
   ) {}
   logger = new Logger(AuthenController.name);
-
-  //avoid :  goi Res() res : Response la se error
 
   @HttpCode(200)
   @UseGuards(LocalAuthenGuard)
@@ -66,4 +65,24 @@ export class AuthenController {
   async getCurrentUser(@Req() request) {
     return request?.user;
   }
+
+  @UseGuards(JwtRefreshAuthenGuard)
+  @Get('refreshToken')
+  async refreshToken(@Req() req: RequestWithUser) {
+    const user = req.user;
+    const accessToken = this.authenService.getAccessToken(user.id);
+
+    return { accessToken };
+  }
+
+  @UseGuards(JwtAuthenGuard)
+  @Post('logout')
+  async logout(@Req() req: RequestWithUser) {
+    const { user } = req;
+    return await this.authenService.removeRefreshToken(user.id);
+  }
 }
+
+// clear cookies
+//  'Authentication=; HttpOnly; Path=/; Max-Age=0',
+//       'Refresh=; HttpOnly; Path=/; Max-Age=0'
