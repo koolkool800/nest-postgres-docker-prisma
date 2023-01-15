@@ -40,12 +40,33 @@ export class AuthenService {
     }
   }
 
-  getCookieWithJWTToken(userId: string) {
+  getAllToken(userId: string) {
     const payload: TokenPayload = { userId };
-    const token = this.jwtService.sign(payload);
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
-      'JWT_EXPIRATION_TIME',
-    )}`;
+    const accessToken = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_SECRET'),
+      expiresIn: this.configService.get('JWT_EXPIRATION_TIME'),
+    });
+
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_REFRESH_TOKEN_SECRET'),
+      expiresIn: this.configService.get('JWT_REFRESH_TOKEN_EXPIRATION_TIME'),
+    });
+    // return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+    //   'JWT_EXPIRATION_TIME',
+    // )}`;
+
+    return { accessToken, refreshToken };
+  }
+
+  getAccessToken(userId: string) {
+    try {
+      const payload: TokenPayload = { userId };
+      const accessToken = this.jwtService.sign(payload, {
+        secret: this.configService.get('JWT_SECRET'),
+        expiresIn: this.configService.get('JWT_EXPIRATION_TIME'),
+      });
+      return accessToken;
+    } catch (error) {}
   }
 
   public getCookieForLogOut() {
@@ -54,7 +75,11 @@ export class AuthenService {
 
   async getAuthenticatedUser(email: string, password: string) {
     try {
-      const user = await this.userService.getUserByEmail(email);
+      const user = await this.userService.getUserByOption({
+        where: {
+          email,
+        },
+      });
 
       await this.verifyPassword(password, user.password);
       user.password = undefined;
@@ -78,5 +103,9 @@ export class AuthenService {
 
   async deleteAllUser() {
     return await this.userService.deleteAll();
+  }
+
+  async removeRefreshToken(userId: string) {
+    return await this.userService.removeRefreshToken(userId);
   }
 }

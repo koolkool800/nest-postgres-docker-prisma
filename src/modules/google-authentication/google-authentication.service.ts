@@ -1,6 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Auth, google } from 'googleapis';
+import { AuthenService } from '../authen/authen.service';
+import { User } from '../user/entity/user.entity';
 import { UserService } from '../user/user.service';
 
 @Injectable()
@@ -9,6 +17,7 @@ export class GoogleAuthenticationService {
   constructor(
     private readonly configService: ConfigService,
     private userService: UserService,
+    private authenService: AuthenService,
   ) {
     const clientID = this.configService.get('GOOGLE_CLIENT_ID');
     const clientSecret = this.configService.get('GOOGLE_CLIENT_SECRET');
@@ -21,15 +30,16 @@ export class GoogleAuthenticationService {
     const { email } = tokenInfo;
 
     try {
-      const user = await this.userService.getUserByEmail(email);
+      const user = await this.userService.getUserByOption({
+        where: {
+          email,
+        },
+      });
 
-      // return this.handleRegisteredUser(user);
+      if (user) return await this.handleLoginGoogle(user);
+      return await this.registerUser(token, email);
     } catch (error) {
-      if (error.status !== 404) {
-        throw new error();
-      }
-
-      return this.registerUser(token, email);
+      throw new HttpException(`Error  ${error}`, HttpStatus.BAD_GATEWAY);
     }
   }
 
@@ -38,7 +48,7 @@ export class GoogleAuthenticationService {
     const name = userData.name;
     const user = await this.userService.createWithGoogle(email, name);
 
-    //return this.handleRegisteredUser(user);
+    return await this.handleLoginGoogle(user);
   }
 
   async getUserData(token: string) {
@@ -50,5 +60,30 @@ export class GoogleAuthenticationService {
     });
 
     return userInfoResponse.data;
+  }
+
+  async handleLoginGoogle(user: User) {
+    try {
+      if (!user.isRegisteredWithGoogle) {
+        throw new HttpException(
+          "User isn't registered with google",
+          HttpStatus.BAD_GATEWAY,
+        );
+      }
+
+      const { accessToken, refreshToken } = this.authenService.getAllToken(
+        user.id,
+      );
+
+      await this.userService.setRefreshToken(user.id, refreshToken);
+
+      return {
+        accessToken,
+        refreshToken,
+        user,
+      };
+    } catch (error) {
+      console.log('error in generate token', error);
+    }
   }
 }

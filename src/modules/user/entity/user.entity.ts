@@ -22,6 +22,10 @@ export class User {
   @Column({ nullable: true })
   stripeCustomerId?: string;
 
+  @Exclude()
+  @Column({ nullable: true })
+  refreshToken?: string;
+
   //   @JoinColumn()
   //   @OneToOne(() => Address)
   //   address:Address

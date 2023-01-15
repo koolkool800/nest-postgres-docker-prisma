@@ -4,7 +4,10 @@ import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  app.enableCors({
+    credentials: true,
+    origin: ['http://localhost:3000'],
+  });
   const config = new DocumentBuilder()
     .setTitle('Baro gia')
     .setDescription('Baro gia description')
