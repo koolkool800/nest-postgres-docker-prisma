@@ -11,12 +11,14 @@ import { UserService } from '../user/user.service';
 import { TokenPayload } from './interfaces/authen.interface';
 import * as bcrypt from 'bcrypt';
 import { RegisterUserDto } from './dto/authen.dto';
+import { MailService } from '../mail/mail.service';
 @Injectable()
 export class AuthenService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private emailService: MailService,
   ) {}
 
   private logger = new Logger(AuthenService.name);
@@ -29,10 +31,12 @@ export class AuthenService {
         password: hashed,
       });
 
+      await this.emailService.sendVerificationEmail(newUser.email);
       newUser.password = undefined;
 
       return newUser;
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         'Something went wrong, maybe this user is already exist',
         HttpStatus.INTERNAL_SERVER_ERROR,

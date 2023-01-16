@@ -11,6 +11,7 @@ import { RegisterUserDto } from '../authen/dto/authen.dto';
 import { CreateUserDto } from './dto/user.dto';
 import { User } from './entity/user.entity';
 import * as bcrypt from 'bcrypt';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 @Injectable()
 export class UserService {
@@ -43,6 +44,16 @@ export class UserService {
         `Error happened in get user by option because no user exist`,
       );
     }
+  }
+
+  async updateUserByOption(
+    userId: string,
+    updateField: QueryDeepPartialEntity<User>,
+  ) {
+    try {
+      return await this.userRepository.update(userId, updateField);
+    } catch (error) {}
+    throw new BadRequestException(`Error happened in udate user by option`);
   }
 
   async createUser(registerDto: RegisterUserDto) {
