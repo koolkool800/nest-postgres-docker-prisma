@@ -1,9 +1,21 @@
-import { Injectable, Logger, LoggerService } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  LoggerService,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import * as SendGrid from '@sendgrid/mail';
+import { UserService } from '../user/user.service';
+import { EmailVerificationTokenPayload } from './dto/mail.dto';
 @Injectable()
 export class MailService {
-  constructor(private configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    private jwtService: JwtService,
+    private userService: UserService,
+  ) {
     SendGrid.setApiKey(this.configService.get('SENDGRID_API_KEY'));
   }
   private logger = new Logger();
@@ -269,6 +281,89 @@ export class MailService {
       return transport;
     } catch (error) {
       this.logger.error(error);
+    }
+  }
+
+  async sendVerificationEmail(email: string) {
+    try {
+      const payload: EmailVerificationTokenPayload = { email };
+      const token = this.jwtService.sign(payload, {
+        secret: this.configService.get('JWT_VERIFICATION_TOKEN_SECRET'),
+        expiresIn: `${this.configService.get(
+          'JWT_VERIFICATION_TOKEN_EXPIRATION_TIME',
+        )}s`,
+      });
+
+      const urlConfirmation = `http://localhost:8000/mail/verify-email?token=${token}`;
+      const text = `Welcome to the application. To confirm the email address, click here: ${urlConfirmation}`;
+      const mail: SendGrid.MailDataRequired = {
+        from: 'knabao7a7@gmail.com',
+        to: email,
+        subject: 'Confirm your email address',
+        text: text,
+      };
+
+      const transport = await SendGrid.send(mail);
+      return transport;
+    } catch (error) {
+      this.logger.debug(error);
+      throw new BadRequestException(`${error}`);
+    }
+  }
+
+  async decodeEmailToken(token: string) {
+    try {
+      const payload = await this.jwtService.verify(token, {
+        secret: this.configService.get('JWT_VERIFICATION_TOKEN_SECRET'),
+      });
+
+      this.logger.debug({ payload });
+
+      if (payload.email) {
+        return payload.email;
+      }
+
+      throw new BadRequestException();
+    } catch (error) {
+      throw new BadRequestException(`${error}`);
+    }
+  }
+
+  async confirmEmail(email: string) {
+    try {
+      const user = await this.userService.getUserByOption({
+        where: {
+          email,
+        },
+      });
+
+      if (user.isEmailConfirmed) {
+        throw new BadRequestException('Email already confirmed');
+      }
+      const updatedUser = await this.userService.updateUserByOption(user.id, {
+        isEmailConfirmed: true,
+      });
+
+      return updatedUser;
+    } catch (error) {
+      throw new BadRequestException(`${error}`);
+    }
+  }
+
+  async resendVericationEmail(userId: string) {
+    try {
+      const user = await this.userService.getUserByOption({
+        where: {
+          id: userId,
+        },
+      });
+
+      if (user.isEmailConfirmed) {
+        throw new BadRequestException('Email already confirmed');
+      }
+      return await this.sendVerificationEmail(user.email);
+    } catch (error) {
+      throw new BadRequestException(`${error}`);
     }
   }
 }

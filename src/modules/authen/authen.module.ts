@@ -8,11 +8,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from 'src/commons/stragies/jwt.strategy';
 import { LocalStrategy } from 'src/commons/stragies/local.strategy';
 import { JwtRefreshTokenStrategy } from 'src/commons/stragies/jwt-refresh.strategy';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
     UserModule,
     PassportModule,
+    MailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
