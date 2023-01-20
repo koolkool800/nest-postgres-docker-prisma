@@ -1,3 +1,4 @@
+import { IsNumber, IsOptional, Min } from 'class-validator';
 import {
   Column,
   CreateDateColumn,
@@ -23,4 +24,16 @@ export abstract class BaseEntity {
     nullable: true,
   })
   updateAt: Date;
+}
+
+export class PaginationParams {
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  offset: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  limit: number;
 }

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PaginationParams } from 'commons/base.entity';
 import { Repository } from 'typeorm';
 import { Post, PostEntity } from './entity/post.entity';
 
@@ -23,5 +24,20 @@ export class PostService {
     } catch (error) {
       this.logger.error(error);
     }
+  }
+
+  async getPosts(options: PaginationParams) {
+    try {
+      const result = await this.postRepository.findAndCount({
+        skip: options.offset,
+        take: options.limit,
+      });
+
+      const [data, total] = result;
+      return {
+        data,
+        total,
+      };
+    } catch (error) {}
   }
 }
