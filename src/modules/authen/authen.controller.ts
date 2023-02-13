@@ -62,7 +62,13 @@ export class AuthenController {
 
   @UseGuards(JwtRefreshAuthenGuard)
   @Get('userWithJWTRefreshToken')
-  async getCurrentUser(@Req() request) {
+  async getCurrentUserWRT(@Req() request) {
+    return request?.user;
+  }
+
+  @UseGuards(JwtAuthenGuard)
+  @Get('userWithToken')
+  async getCurrentUserWT(@Req() request) {
     return request?.user;
   }
 
@@ -80,6 +86,11 @@ export class AuthenController {
   async logout(@Req() req: RequestWithUser) {
     const { user } = req;
     return await this.authenService.removeRefreshToken(user.id);
+  }
+
+  @Get('ahihi')
+  async ahihi() {
+    return 'ahihi';
   }
 }
 
