@@ -55,6 +55,15 @@ export class AuthenController {
     return await this.authenService.getAllUser();
   }
 
+  @Get('getAllActiveUsers')
+  async getAllActiveUser() {
+    return await this.userService.getAllUser({
+      where: {
+        isEmailConfirmed: true,
+      },
+    });
+  }
+
   @Get('delete')
   async deleteAll() {
     return await this.authenService.deleteAllUser();

@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOneOptions, Repository } from 'typeorm';
+import { FindManyOptions, FindOneOptions, Repository } from 'typeorm';
 import { RegisterUserDto } from '../authen/dto/authen.dto';
 import { CreateUserDto } from './dto/user.dto';
 import { User } from './entity/user.entity';
@@ -73,8 +73,8 @@ export class UserService {
     }
   }
 
-  async getAllUser() {
-    return await this.userRepository.find();
+  async getAllUser(options?: FindManyOptions<User>) {
+    return await this.userRepository.find(options);
   }
 
   async deleteAll() {

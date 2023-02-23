@@ -11,6 +11,11 @@ import { ErrorsInterceptor } from './utils/interceptors/error.interceptor';
 import { GoogleAuthenticationModule } from './modules/google-authentication/google-authentication.module';
 import { AuthenModule } from './modules/authen/authen.module';
 import { User } from './modules/user/entity/user.entity';
+import { AppGateway } from './app.gateway';
+import { RoomsModule } from './modules/rooms/rooms.module';
+import { MessageModule } from './modules/message/message.module';
+import { Room } from './modules/rooms/entity/room.entity';
+import { Message } from './modules/message/entity/message.entity';
 
 @Module({
   imports: [
@@ -28,7 +33,7 @@ import { User } from './modules/user/entity/user.entity';
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_NAME'),
         synchronize: true,
-        entities: [User],
+        entities: [User, Room, Message],
       }),
     }),
     MailModule,
@@ -36,6 +41,8 @@ import { User } from './modules/user/entity/user.entity';
     PostModule,
     GoogleAuthenticationModule,
     AuthenModule,
+    RoomsModule,
+    MessageModule,
   ],
   controllers: [AppController],
   providers: [
@@ -48,6 +55,7 @@ import { User } from './modules/user/entity/user.entity';
       provide: 'APP_INTERCEPTOR',
       useClass: ErrorsInterceptor,
     },
+    AppGateway,
   ],
 })
 export class AppModule {}
