@@ -26,6 +26,7 @@ export class UserService {
       email,
       name,
       isRegisteredWithGoogle: true,
+      isEmailConfirmed: true,
       // stripeCustomerId
     });
 

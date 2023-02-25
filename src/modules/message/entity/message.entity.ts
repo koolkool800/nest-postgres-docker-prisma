@@ -1,6 +1,14 @@
 import { Room } from 'src/modules/rooms/entity/room.entity';
 import { User } from 'src/modules/user/entity/user.entity';
-import { Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class Message {
@@ -12,4 +20,10 @@ export class Message {
 
   @ManyToOne(() => User)
   sender: User;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 }
