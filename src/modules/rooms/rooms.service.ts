@@ -14,7 +14,7 @@ export class RoomsService {
 
   async findRoomByUsers(users: number[]) {
     try {
-      const room = await this.roomRepository.findOne({
+      const rooms = await this.roomRepository.find({
         where: {
           members: {
             id: In(users),
@@ -23,12 +23,37 @@ export class RoomsService {
         relations: ['members'],
       });
 
-      if (!room)
+      if (rooms.length === 0)
         return {
           message: 'not found',
         };
 
-      return room;
+      let finalRoom = null as Room;
+
+      for (let room of rooms) {
+        let userIds = room.members.map((user) => +user.id);
+
+        let isContainAll = users.every((userId) => userIds.includes(userId));
+
+        if (isContainAll) {
+          finalRoom = room;
+          break;
+        }
+
+        return {
+          message: 'not found',
+        };
+      }
+
+      const modifiedRoom = new Room();
+      modifiedRoom.id = finalRoom.id;
+
+      modifiedRoom.members = finalRoom.members.map((user) => {
+        const { password, refreshToken, ...rest } = user;
+        return rest;
+      });
+
+      return modifiedRoom;
     } catch (error) {
       throw new HttpException(
         `Error in request ${error}`,
