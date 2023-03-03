@@ -21,7 +21,6 @@ export class AppGateway
 
   @SubscribeMessage('sendMessage')
   handleMessage(client: Socket, message: string) {
-    //
     this.server.emit('getMessage', message);
   }
 

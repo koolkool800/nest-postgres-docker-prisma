@@ -49,7 +49,13 @@ export class RoomsService {
       modifiedRoom.id = finalRoom.id;
 
       modifiedRoom.members = finalRoom.members.map((user) => {
-        const { password, refreshToken, ...rest } = user;
+        const {
+          password,
+          refreshToken,
+          stripeCustomerId,
+          isEmailConfirmed,
+          ...rest
+        } = user;
         return rest;
       });
 
