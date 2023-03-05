@@ -8,6 +8,11 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
+interface MessagePayload {
+  text: string;
+  roomId: string;
+}
+
 @WebSocketGateway({
   cors: {
     origin: '*',
@@ -20,11 +25,19 @@ export class AppGateway
   server: Server;
 
   @SubscribeMessage('sendMessage')
-  handleMessage(client: Socket, message: string) {
-    this.server.emit('getMessage', message);
+  handleMessage(client: Socket, payload: MessagePayload) {
+    const { roomId, text } = payload;
+    this.server.to(roomId).emit('getMessage', text);
   }
 
-  afterInit(server: any) {}
+  @SubscribeMessage('joinRoom')
+  handleJoinRoom(client: Socket, roomId: string) {
+    client.join(roomId);
+  }
+
+  afterInit(server: any) {
+    //
+  }
 
   handleConnection(client: Socket, ...args: any[]) {
     console.log(`connected ${client.id}`);

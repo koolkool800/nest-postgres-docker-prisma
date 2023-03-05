@@ -99,7 +99,7 @@ export class AuthenController {
 
   @Get('ahihi')
   async ahihi() {
-    return 'ahihi';
+    return await this.userService.getAllUser({});
   }
 }
 

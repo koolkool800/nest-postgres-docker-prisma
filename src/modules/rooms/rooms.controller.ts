@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpException,
@@ -7,6 +8,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
+import { CreateRoomDTO } from './interfaces/room';
 import { RoomsService } from './rooms.service';
 
 @Controller('rooms')
@@ -25,7 +27,8 @@ export class RoomsController {
 
   // rooms?users=1,2 : 1,2 is idUser
   @Post('')
-  async createRoom(@Query('users') users: string) {
+  async createRoom(@Body() body: CreateRoomDTO) {
+    const { users } = body;
     try {
       const userArray = users.split(',').map((userId) => userId) as string[];
       const foundUsers = await Promise.all(

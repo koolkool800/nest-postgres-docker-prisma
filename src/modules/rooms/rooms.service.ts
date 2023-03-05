@@ -30,10 +30,10 @@ export class RoomsService {
 
       let finalRoom = null as Room;
 
-      for (let room of rooms) {
-        let userIds = room.members.map((user) => +user.id);
+      for (const room of rooms) {
+        const userIds = room.members.map((user) => +user.id);
 
-        let isContainAll = users.every((userId) => userIds.includes(userId));
+        const isContainAll = users.every((userId) => userIds.includes(userId));
 
         if (isContainAll) {
           finalRoom = room;
