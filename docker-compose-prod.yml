@@ -2,14 +2,7 @@ version: '3.8'
 services:
   app:
     container_name: giabao_app
-    image: giabao_image
-    build:
-      context: .
-      target: builder
-    volumes:
-      - ./:/usr/src/app
-      - /usr/src/app/node_modules
-    command: yarn start:dev
+    image: 737938582190.dkr.ecr.ap-southeast-1.amazonaws.com/be-test-bao:latest
 
     restart: always
     networks:
@@ -35,6 +28,7 @@ services:
       JWT_REFRESH_TOKEN_EXPIRATION_TIME: ${JWT_REFRESH_TOKEN_EXPIRATION_TIME}
       JWT_VERIFICATION_TOKEN_SECRET: ${JWT_VERIFICATION_TOKEN_SECRET}
       JWT_VERIFICATION_TOKEN_EXPIRATION_TIME: ${JWT_VERIFICATION_TOKEN_EXPIRATION_TIME}
+
   postgres:
     container_name: giabao_postgres
     image: postgres:13.2
@@ -43,7 +37,6 @@ services:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: password
       POSTGRES_DB: postgresql
-
     volumes:
       - data:/var/lib/postgresql/data
     ports:

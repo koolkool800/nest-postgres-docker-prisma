@@ -55,6 +55,15 @@ export class AuthenController {
     return await this.authenService.getAllUser();
   }
 
+  @Get('getAllActiveUsers')
+  async getAllActiveUser() {
+    return await this.userService.getAllUser({
+      where: {
+        isEmailConfirmed: true,
+      },
+    });
+  }
+
   @Get('delete')
   async deleteAll() {
     return await this.authenService.deleteAllUser();
@@ -62,7 +71,13 @@ export class AuthenController {
 
   @UseGuards(JwtRefreshAuthenGuard)
   @Get('userWithJWTRefreshToken')
-  async getCurrentUser(@Req() request) {
+  async getCurrentUserWRT(@Req() request) {
+    return request?.user;
+  }
+
+  @UseGuards(JwtAuthenGuard)
+  @Get('userWithToken')
+  async getCurrentUserWT(@Req() request) {
     return request?.user;
   }
 
@@ -80,6 +95,11 @@ export class AuthenController {
   async logout(@Req() req: RequestWithUser) {
     const { user } = req;
     return await this.authenService.removeRefreshToken(user.id);
+  }
+
+  @Get('ahihi')
+  async ahihi() {
+    return await this.userService.getAllUser({});
   }
 }
 
